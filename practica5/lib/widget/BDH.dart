@@ -1,13 +1,11 @@
-
-import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart'; 
+import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class BDH {
   static final BDH _instance = BDH._internal();
-  
-  factory BDH() => _instance;   
-  
+
+  factory BDH() => _instance;
+
   BDH._internal();
 
   Database? _database;
@@ -18,44 +16,48 @@ class BDH {
     return _database;
   }
 
-  Future<Database> initDB() async { 
+  Future<Database> initDB() async {
     return await openDatabase(
-      join(await getDatabasesPath(), 'Abarrotes.db'),
+      join(await getDatabasesPath(), 'Datospersonales.db'),
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE productos(
+          CREATE TABLE datospersonales(
             codigo TEXT PRIMARY KEY,
             nombre TEXT NOT NULL,
-            precio REAL NOT NULL
+            precio REAL NOT NULL,
+            correo TEXT NOT NULL,
+            edad INTEGER NOT NULL
           )
         ''');
       },
     );
   }
 
-  Future<int> insertarProductos(String codigo, String nombre, double precio) async {
+  Future<int> insertarDatosPersonales(String codigo, String nombre, double precio, String correo, int edad) async {
     final db = await database;
     return await db!.insert(
-      'productos',
+      'datospersonales',
       {
         'codigo': codigo,
         'nombre': nombre,
         'precio': precio,
+        'correo': correo,
+        'edad': edad
       },
-      conflictAlgorithm: ConflictAlgorithm.replace, // evita errores por claves duplicadas
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<List<Map<String, dynamic>>> obtenerProductos() async {
+  Future<List<Map<String, dynamic>>> obtenerDatosPersonales() async {
     final db = await database;
-    return await db!.query('productos');
-  } 
+    return await db!.query('datospersonales');
+  }
 
-  Future<int> eliminarProducto(String codigo) async {
+  Future<int> eliminarDatoPersonal(String codigo) async {
     final db = await database;
     return await db!.delete(
-      'productos',
+      'datospersonales',
       where: 'codigo = ?',
       whereArgs: [codigo],
     );
